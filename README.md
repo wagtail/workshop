@@ -15,7 +15,7 @@
 10. `python manage.py createsuperuser`
 11. Go to http://localhost:8000/
 12. Click the Admin Interface link or go directly to https://localhost:8000/admin/
- 
+
 # Edit the homepage model
 ## Add a body field
 
@@ -24,8 +24,8 @@
 from wagtail.core.models import Page
 from wagtail.core.fields import RichTextField
 from wagtail.admin.edit_handlers import FieldPanel
-    
-    
+
+
 class HomePage(Page):
     body = RichTextField(blank=True)
 ```
@@ -37,7 +37,7 @@ class HomePage(Page):
 ```python
 class HomePage(Page):
     body = RichTextField(blank=True)
-    
+
     content_panels = Page.content_panels + [
         FieldPanel('body', classname="full"),
     ]
@@ -50,7 +50,7 @@ Edit `home/templates/home/home_page.html`
 ```python
 {% extends "base.html" %}
 {% load wagtailcore_tags %}
-    
+
 {% block content %}
     <h1>{{ self.title }}</h1>
     {{ page.body|richtext }}
@@ -64,16 +64,16 @@ Edit `home/templates/home/home_page.html`
 2. add `blog` to `INSTALLED_APPS` in `workshop/settings/base.py`
 3. Edit `blog/models.py`:
 
-```python  
+```python
 # blog/models.py
 from wagtail.core.models import Page
 from wagtail.core.fields import RichTextField
 from wagtail.admin.edit_handlers import FieldPanel
-    
-    
+
+
 class BlogIndexPage(Page):
     intro = RichTextField(blank=True)
-    
+
     content_panels = Page.content_panels + [
         FieldPanel('intro', classname="full")
     ]
@@ -88,7 +88,7 @@ Make a file at `blog/templates/blog/blog_index_page.html` with this content:
 ```html
 {% extends "base.html" %}
 {% load wagtailcore_tags %}
-    
+
 {% block content %}
     <h1>{{ page.title }}</h1>
     <div class="intro">{{ page.intro|richtext }}</div>
@@ -107,17 +107,17 @@ In `blog/models.py`:
 
 ```python
 from django.db import models
-    
+
 from wagtail.core.models import Page
 from wagtail.core.fields import RichTextField
 from wagtail.admin.edit_handlers import FieldPanel
-  
+
 # Keep the definition of BlogIndexPage, and add:
-    
+
 class BlogPage(Page):
     intro = models.CharField(max_length=250)
     body = RichTextField(blank=True)
-    
+
     content_panels = Page.content_panels + [
         FieldPanel('intro'),
         FieldPanel('body', classname="full"),
@@ -133,10 +133,10 @@ Make a file at `blog/templates/blog/blog_page.html` with this content:
 ```html
 {% extends "base.html" %}
 {% load wagtailcore_tags %}
-    
+
 {% block content %}
     <h1>{{ page.title }}</h1>
-    <p class="meta">{{ page.first_published_at }}</p>    
+    <p class="meta">{{ page.first_published_at }}</p>
     <div class="intro">{{ page.intro }}</div>
     {{ page.body|richtext }}
     <p><a href="{{ page.get_parent.url }}">Return to blog</a></p>
@@ -149,7 +149,7 @@ Posts should be in reverse chronological order, and we should only list publishe
 
 ```python
 class BlogIndexPage(Page):
-    # .. pre-existing fields 
+    # .. pre-existing fields
 
     def get_context(self, request):
         context = super().get_context(request)
@@ -161,7 +161,7 @@ class BlogIndexPage(Page):
 and update your blog index template to loop over `blogpages` instead of `page.get_children`.
 
 ## Add an image to your blog post model
-    
+
 ```python
 # blog/models.py
 # Add this to your imports
@@ -174,7 +174,7 @@ from wagtail.images.edit_handlers import ImageChooserPanel
         blank=True,
         on_delete=models.SET_NULL
     )
-        
+
 # Add this to your content_panels for BlogPage
 ImageChooserPanel('image'),
 ```
@@ -188,7 +188,7 @@ Open up your `blog/templates/blog/blog_page.html` template and make the followin
 ```html
 {% extends "base.html" %}
 {% load wagtailcore_tags wagtailimages_tags %}
-    
+
 {% block content %}
     <h1>{{ page.title }}</h1>
     <p class="meta">{{ page.first_published_at }}</p>
@@ -226,7 +226,7 @@ And add some margins to `static/css/workshop.css`:
 .container {
     padding-top: 4rem;
 }
-    
+
 h2 {
     margin-bottom: 0rem;
     margin-top: 2rem;
@@ -234,7 +234,7 @@ h2 {
 ```
 # Deploy
 
-Install wagtail-bakery with 
+Install wagtail-bakery with
 ```
 pip install --upgrade git+https://github.com/moorinteractive/wagtail-bakery
 ```
@@ -263,7 +263,7 @@ npm install netlify-cli -g
 
 Once `netlify-cli` is installed, we need to login in via the command line tool. To do that, run `netlify login`. It'll take you to the login page. If you don't have a Netlify account, now is the time to create a free netlify account.
 
-Once you're logged in you can type `netlify status` to verify your credentials are working in your command line tool. 
+Once you're logged in you can type `netlify status` to verify your credentials are working in your command line tool.
 
 Next you'll need to run the `netlify init` command to start it inside our project and select the "Yes, create and deploy site manually" option. Then select your team. Then provide a custom subdomain URL (optional, and changeable later).
 
@@ -295,7 +295,7 @@ from subprocess import Popen
 
 def deploy(sender, **kwargs):
     call_command('build')
-    Popen(['netlify', 'deploy'])
+    Popen(['netlify', 'deploy', '--dir=/tmp/build/'])
 
 page_published.connect(deploy)
 ```
@@ -311,14 +311,14 @@ from wagtail.core.fields import StreamField
 from wagtail.core import blocks
 from wagtail.admin.edit_handlers import StreamFieldPanel
 from wagtail.embeds.blocks import EmbedBlock
-  
+
 # convert your BlogPage's body to a StreamField:
 body = StreamField([
     ('heading', blocks.CharBlock(classname="full title", icon="title")),
     ('paragraph', blocks.RichTextBlock(icon="pilcrow")),
     ('embed', EmbedBlock(icon="media")),
 ])
- 
+
 # and, in content_panels, convert BlogPage's FieldPanel into a StreamFieldPanel:
 StreamFieldPanel('body')
 ```
@@ -326,12 +326,12 @@ StreamFieldPanel('body')
 Update your blog page template to output the new field type, replacing `{{ page.body|richtext }}` with
 
 ```html
-{% for child in self.body %} 
+{% for child in self.body %}
     {% if child.block_type == 'heading' %}
         <h2>{{ child }}</h2>
     {% else %}
         {{ child }}
-    {% endif %} 
+    {% endif %}
 {% endfor %}
 ```
 
