@@ -4,7 +4,7 @@
 1. `virtualenv --python=python3 wagtailenv`
 2. `source wagtailenv/bin/activate`
     - On Windows, the equivalent activate script is in the Scripts folder:
-    - `\> wagtailenv\Scripts\activate`
+    - `> wagtailenv\Scripts\activate`
 3. `pip install --upgrade pip`
 4. `pip install wagtail`
 5. `wagtail start workshop`
@@ -60,7 +60,7 @@ Edit `home/templates/home/home_page.html`
 # Create a blog
 ## Define the model for the blog index page
 
-1. `./manage.py startapp blog`
+1. `python manage.py startapp blog`
 2. add `blog` to `INSTALLED_APPS` in `workshop/settings/base.py`
 3. Edit `blog/models.py`:
 
@@ -145,16 +145,17 @@ Make a file at `blog/templates/blog/blog_page.html` with this content:
 
 ## Improve the blog listing
 
-Posts should be in reverse chronological order, and we should only list published content. Edit `models.py`, adding this `get_context` method to the `BlogIndexPage` class:
+Posts should be in reverse chronological order, and we should only list published content. Edit `blog/models.py`, adding this `get_context` method to the `BlogIndexPage` class:
 
 ```python
-def get_context(self, request):
-    # Update context to include only published posts, 
-    # in reverse chronological order
-    context = super().get_context(request)
-    live_blogpages = self.get_children().live()
-    context['blogpages'] = live_blogpages.order_by('-first_published_at')
-    return context
+class BlogIndexPage(Page):
+    # .. pre-existing fields 
+
+    def get_context(self, request):
+        context = super().get_context(request)
+        live_blogpages = self.get_children().live()
+        context['blogpages'] = live_blogpages.order_by('-first_published_at')
+        return context
 ```
 
 and update your blog index template to loop over `blogpages` instead of `page.get_children`.
@@ -181,6 +182,8 @@ ImageChooserPanel('image'),
 `python manage.py makemigrations` and `python manage.py migrate`
 
 ## Update the blog post template to output images
+
+Open up your `blog/templates/blog/blog_page.html` template and make the following edits:
 
 ```html
 {% extends "base.html" %}
