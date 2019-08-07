@@ -5,7 +5,7 @@
 2. `source wagtailenv/bin/activate`
     - On Windows, the equivalent activate script is in the Scripts folder:
     - `> wagtailenv\Scripts\activate`
-3. `pip install --upgrade pip`
+3. `pip install --upgrade pip` and `pip install --upgrade pip wheel`
 4. `pip install wagtail`
 5. `wagtail start workshop`
 6. `cd workshop`
@@ -236,7 +236,7 @@ h2 {
 
 Install wagtail-bakery with
 ```
-pip install --upgrade git+https://github.com/moorinteractive/wagtail-bakery
+pip install --upgrade git+https://github.com/wagtail/wagtail-bakery
 ```
 Then add `bakery` and `wagtailbakery` to your `INSTALLED_APPS`.
 
@@ -312,15 +312,20 @@ from wagtail.core import blocks
 from wagtail.admin.edit_handlers import StreamFieldPanel
 from wagtail.embeds.blocks import EmbedBlock
 
-# convert your BlogPage's body to a StreamField:
-body = StreamField([
-    ('heading', blocks.CharBlock(classname="full title", icon="title")),
-    ('paragraph', blocks.RichTextBlock(icon="pilcrow")),
-    ('embed', EmbedBlock(icon="media")),
-])
+# Convert your BlogPage's body to a StreamField:
+class BlogPage(Page):
+    # ... other fields
+    body = StreamField([
+        ('heading', blocks.CharBlock(classname="full title", icon="title")),
+        ('paragraph', blocks.RichTextBlock(icon="pilcrow")),
+        ('embed', EmbedBlock(icon="media")),
+    ])
 
-# and, in content_panels, convert BlogPage's FieldPanel into a StreamFieldPanel:
-StreamFieldPanel('body')
+    # And, in content_panels, convert BlogPage's FieldPanel into a StreamFieldPanel:
+    content_panels = Page.content_panels + [
+        # Other panels
+        StreamFieldPanel('body'),
+    ]
 ```
 
 Update your blog page template to output the new field type, replacing `{{ page.body|richtext }}` with
